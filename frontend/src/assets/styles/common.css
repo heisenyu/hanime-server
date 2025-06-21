@@ -1,0 +1,102 @@
+/* 引入主题变量文件 */
+@import './theme.css';
+
+/* 通用布局样式 */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  color: var(--text-color);
+}
+
+/* 卡片通用样式 */
+.card {
+  background-color: var(--bg-secondary-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+/* 标题通用样式 */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-secondary-color);
+}
+
+/* 按钮通用样式 */
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: var(--hover-bg-color);
+}
+
+/* 点赞按钮通用样式 */
+.like-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-secondary-color);
+  transition: color 0.2s;
+}
+
+.like-button:hover {
+  color: var(--primary-color);
+}
+
+.like-button .el-icon {
+  margin-right: 5px;
+}
+
+.like-count {
+  font-size: 12px;
+}
+
+/* 标签通用样式 */
+.tag-item {
+  background-color: var(--bg-secondary-color);
+  color: var(--text-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 可点击通知样式 */
+.clickable-notification {
+  padding: 5px;
+  margin: -5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.clickable-notification:hover {
+  background-color: rgba(64, 158, 255, 0.1);
+}
+
+/* 响应式通用设置 */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: 5px;
+  }
+} 

@@ -1,0 +1,80 @@
+/* 默认为暗黑模式的主题变量 */
+:root {
+  /* 主色调 */
+  --primary-color: #ff4757;
+  --primary-hover-color: #ff6b7a;
+  --secondary-color: #ec4899;
+  
+  /* 文本颜色 */
+  --text-color: #fff;
+  --text-secondary-color: #a1a1aa;
+  
+  /* 背景颜色 */
+  --bg-color: #18181b;
+  --bg-secondary-color: #27272a;
+  --border-color: #3f3f46;
+  
+  /* 卡片样式 */
+  --card-bg-color: #27272a;
+  --card-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  
+  /* 交互元素 */
+  --hover-bg-color: rgba(255, 255, 255, 0.1);
+  
+  /* 按钮和标签颜色 */
+  --button-text-color: #fff;
+}
+
+/* 亮色模式样式变量 */
+html.light {
+  /* 主色调（保持品牌一致性） */
+  --primary-color: #ff4757;
+  --primary-hover-color: #ff6b7a;
+  --secondary-color: #ec4899;
+  
+  /* 文本颜色 - 增强对比度 */
+  --text-color: #222;
+  --text-secondary-color: #555;
+  
+  /* 背景颜色 */
+  --bg-color: #f5f5f7;
+  --bg-secondary-color: #fff;
+  --border-color: #ddd;
+  
+  /* 卡片样式 - 优化阴影 */
+  --card-bg-color: #fff;
+  --card-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  
+  /* 交互元素 */
+  --hover-bg-color: rgba(0, 0, 0, 0.05);
+  
+  /* 按钮和标签颜色 */
+  --button-text-color: #fff;
+}
+
+/* Element Plus 自定义变量 */
+:root {
+  /* 自定义 Element Plus 暗黑模式变量 */
+  --el-color-primary: var(--primary-color);
+}
+
+html.light {
+  /* 自定义 Element Plus 亮色模式变量 */
+  --el-color-primary: var(--primary-color);
+}
+
+/* 暗黑模式下的 Element Plus 覆盖样式 */
+html.dark .el-button--primary {
+  --el-button-bg-color: var(--primary-color);
+  --el-button-border-color: var(--primary-color);
+  --el-button-hover-bg-color: var(--primary-hover-color);
+  --el-button-hover-border-color: var(--primary-hover-color);
+}
+
+/* 亮色模式下的 Element Plus 覆盖样式 */
+html.light .el-button--primary {
+  --el-button-bg-color: var(--primary-color);
+  --el-button-border-color: var(--primary-color);
+  --el-button-hover-bg-color: var(--primary-hover-color);
+  --el-button-hover-border-color: var(--primary-hover-color);
+} 
