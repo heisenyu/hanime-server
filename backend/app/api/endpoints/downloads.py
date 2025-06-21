@@ -12,6 +12,7 @@ router = APIRouter()
 async def startup():
     """应用启动时初始化下载管理器"""
     await download_manager.init_db()
+    logger.info("初始化数据库成功")
     await download_manager.load_downloads()
 
 
