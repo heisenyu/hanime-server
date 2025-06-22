@@ -40,7 +40,7 @@ class Settings(BaseModel):
 
     # 文件设置
     DOWNLOAD_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "downloads")))
-    DB_PATH: Path = backend_root / "app" / "db"
+    DB_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "db")))
 
     # 爬虫设置
     USER_AGENT: str = os.getenv("USER_AGENT","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
@@ -57,40 +57,49 @@ class Settings(BaseModel):
     LOG_PATH: Path = Path(os.getenv("LOG_PATH", str(backend_root / "logs")))
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     LOG_FORMAT: str = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+    USE_LOG_FILE: bool = os.getenv("USE_LOG_FILE", "False").lower() in ("true", "1", "t")
 
 
 settings = Settings()
 
 # 打印下载目录信息
 logger.info(f"下载目录: {settings.DOWNLOAD_PATH}")
-logger.info(f"日志目录: {settings.LOG_PATH}")
+logger.info(f"数据库目录: {settings.DB_PATH}")
 
 # 确保下载目录存在
 settings.DOWNLOAD_PATH.mkdir(exist_ok=True)
-# 确保日志目录存在
-settings.LOG_PATH.mkdir(exist_ok=True)
+settings.DB_PATH.mkdir(exist_ok=True)
+
 
 # 配置并初始化logger
 logger.remove()  # 移除默认处理程序
-logger.configure(
-    handlers=[
-        {
-            "sink": sys.stdout,
-            "format": settings.LOG_FORMAT,
-            "level": settings.LOG_LEVEL,
-            "colorize": True,
-        },
-        {
-            "sink": str(settings.LOG_PATH / "app.log"),
-            "format": settings.LOG_FORMAT,
-            "level": settings.LOG_LEVEL,
-            "rotation": "10 MB",
-            "retention": "7 days",
-            "compression": "zip",
-            "enqueue": True,
-        }
-    ]
-)
+
+# 基础处理程序配置
+handlers = [
+    {
+        "sink": sys.stdout,
+        "format": settings.LOG_FORMAT,
+        "level": settings.LOG_LEVEL,
+        "colorize": True,
+    }
+]
+
+# 根据开关决定是否添加文件日志处理程序
+if settings.USE_LOG_FILE:
+    # 确保日志目录存在
+    settings.LOG_PATH.mkdir(exist_ok=True)
+    logger.info(f"日志目录: {settings.LOG_PATH}")
+    handlers.append({
+        "sink": str(settings.LOG_PATH / "app.log"),
+        "format": settings.LOG_FORMAT,
+        "level": settings.LOG_LEVEL,
+        "rotation": "10 MB",
+        "retention": "7 days",
+        "compression": "zip",
+        "enqueue": True,
+    })
+
+logger.configure(handlers=handlers)
 
 
 # 配置uvicorn日志拦截

@@ -1,29 +1,11 @@
-# 基础依赖
-fastapi>=0.68.0
-uvicorn>=0.15.0
-pydantic>=1.8.0
-
-# HTTP客户端
-httpx>=0.23.0
-curl_cffi>=0.11.0
-
-# HTML解析
-beautifulsoup4>=4.10.0
-
-# 数据库相关
-sqlalchemy>=1.4.0
-databases>=0.5.0
-aiosqlite>=0.17.0
-
-# 认证相关
-python-jose>=3.3.0
-passlib>=1.7.4
-
-# 日期时间处理
-python-dateutil>=2.8.2
-
-# 日志
-loguru>=0.7.0
-
-# 环境变量
-python-dotenv>=1.0.0 
+httpx~=0.27.0
+fastapi~=0.115.12
+opencc~=1.1.9
+pydantic~=2.8.2
+uvicorn[standard]~=0.34.2
+drissionpage~=4.1.0.17
+aiosqlite~=0.21.0
+aiofiles~=24.1.0
+loguru~=0.7.2
+python-dotenv~=1.1.0
+curl_cffi~=0.11.0

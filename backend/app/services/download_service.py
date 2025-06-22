@@ -68,9 +68,7 @@ class DownloadManager:
         
         # 数据库路径
         self.db_path = settings.DB_PATH / "downloads.db"
-        
-        # 确保数据库路径存在
-        os.makedirs(settings.DB_PATH, exist_ok=True)
+
     
     async def init_db(self):
         """初始化数据库"""

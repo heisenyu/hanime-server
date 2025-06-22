@@ -1,13 +1,9 @@
-version: '3.8'
-
 services:
   backend:
     build: 
       context: ./backend
     container_name: hanime-server-backend
     restart: unless-stopped
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - ./data/downloads:/app/downloads
       - ./data/logs:/app/logs
