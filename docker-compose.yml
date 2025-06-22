@@ -5,10 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: hanime-server
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      - USE_PROXY=${USE_PROXY:-false}
+      - PROXY_URL=${PROXY_URL:-}
     volumes:
       - ./data/downloads:/app/downloads
-      - ./data/logs:/app/logs
+      - ./data/db:/app/db
     ports:
       - "${APP_PORT:-7788}:7788"
