@@ -1,0 +1,44 @@
+# Git相关
+.git
+.github
+.gitignore
+
+# 数据和日志
+data/
+logs/
+*.log
+
+# 环境变量
+.env
+.env.*
+
+# 开发文件
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/node_modules/
+**/.npm
+**/.venv
+**/.vscode
+**/.idea
+**/frontend/.vite
+.idea/
+.vscode/
+
+# 说明文档
+README.md
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+
+# Docker相关
+.dockerignore
+docker-compose*.yml
+**/Dockerfile
+**/docker-compose*
+
+# 测试文件
+**/*test*
+**/tests/ 

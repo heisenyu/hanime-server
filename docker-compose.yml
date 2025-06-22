@@ -1,27 +1,14 @@
 services:
-  backend:
-    build: 
-      context: ./backend
-    container_name: hanime-server-backend
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hanime-server
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       - ./data/downloads:/app/downloads
       - ./data/logs:/app/logs
-    networks:
-      - hanime-network
-
-  frontend:
-    build:
-      context: ./frontend
-    container_name: hanime-server-frontend
-    restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-7788}:7788"
-    depends_on:
-      - backend
-    networks:
-      - hanime-network
-
-networks:
-  hanime-network:
-    driver: bridge
+      - "${APP_PORT:-7788}:7788"

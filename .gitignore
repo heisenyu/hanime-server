@@ -14,33 +14,9 @@ Thumbs.db
 .env.development.local
 .env.production.local
 
-# 后端
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
-logs/
-*.log
-backend/downloads/
-backend/logs/
-
-# 前端
-node_modules/
-dist/
-dist-ssr/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
 # 数据库
 *.db
 *.sqlite3
 
 # Docker相关
-.dockerignore
 docker-compose.override.yml 

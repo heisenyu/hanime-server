@@ -31,6 +31,7 @@ logs/
 
 # 下载文件
 downloads/
+db/
 
 # IDE配置
 .idea/
