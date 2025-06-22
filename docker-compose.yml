@@ -3,13 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: hanime-server:latest
     container_name: hanime-server
     restart: unless-stopped
     environment:
       - USE_PROXY=${USE_PROXY:-false}
       - PROXY_URL=${PROXY_URL:-}
     volumes:
-      - ./data/downloads:/app/downloads
-      - ./data/db:/app/db
+      - ./data/downloads:/app/backend/downloads
+      - ./data/db:/app/backend/db
     ports:
       - "${APP_PORT:-7788}:7788"
