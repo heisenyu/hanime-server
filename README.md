@@ -1,302 +1,287 @@
-# HanimeViewer
+# Han1me Server
 
-HanimeViewer 是一个用于观看和下载动画视频的Web应用程序，采用现代化的前后端分离架构，由FastAPI后端和Vue.js前端组成。本项目提供友好的用户界面和高效的下载功能，支持视频搜索、浏览、播放和下载。
+<div align="center">
+  <a href="https://github.com/heisenyu/hanime-server">
+    <img src="img/logo.png" alt="Han1me Server Logo" width="100"/>
+  </a>
+  <br>
+  <p>🎬 强大而简洁的Han1me视频浏览与下载解决方案</p>
+</div>
 
-## 目录
+<p align="center">
+  <a href="#功能特色">功能特色</a> •
+  <a href="#项目截图">项目截图</a> •
+  <a href="#技术架构">技术架构</a> •
+  <a href="#部署指南">部署指南</a> •
+  <a href="#免责声明">免责声明</a> •
+  <a href="#许可证">许可证</a>
+</p>
 
-- [功能特性](#功能特性)
-- [技术架构](#技术架构)
-- [快速开始](#快速开始)
-- [详细配置](#详细配置)
-- [目录结构](#目录结构)
-- [开发指南](#开发指南)
-- [常见问题](#常见问题)
-- [贡献指南](#贡献指南)
-- [许可证](#许可证)
+## 🔞 注意
 
-## 功能特性
+本项目内容涉及成人内容，未满18岁禁止使用！
 
-### 视频浏览与搜索
-- 支持按类别、标签、上传时间等多维度浏览视频
-- 强大的搜索功能，支持模糊搜索和精确匹配
-- 视频信息展示，包括标题、封面、时长、标签等
+## 📜 项目简介
 
-### 视频播放
-- 流畅的在线播放体验
-- 自适应播放器，支持多种分辨率
-- 播放历史记录
+Han1me Server 是一个基于 Python 和 Vue.js 开发的全栈应用，用于浏览和播放 hanime 视频资源。项目采用前后端分离架构，后端使用 FastAPI 提供 RESTful API 接口，前端使用 Vue.js 构建响应式用户界面，支持多平台访问。
 
-### 视频下载
-- 高性能多线程下载功能
-- 断点续传支持，意外中断可继续下载
-- 下载任务管理（暂停、恢复、取消）
-- 下载进度实时显示
+整个应用通过 Docker 容器化技术实现一键部署，大大简化了安装和使用流程。
 
-### 系统功能
-- 响应式界面设计，支持多种设备访问
-- 代理设置支持，解决网络访问限制问题
-- Docker容器化部署，简化安装和维护
+> **关于作者**: 作者并非Vue开发者，前端主要借助Cursor AI辅助工具进行开发，如有不足之处，敬请谅解。
 
-## 技术架构
+> **项目灵感**: 本项目的页面布局和功能设计参考了 [YenalyLiew/Han1meViewer](https://github.com/YenalyLiew/Han1meViewer) Android端应用。由于原项目已标记为不再维护，促使我开发了这个基于Web的替代版本，让更多设备都能方便使用。
 
-### 后端技术栈
-- **FastAPI**: 高性能的Python Web框架
-- **Loguru**: 结构化日志记录
-- **aiohttp**: 异步HTTP客户端/服务器
-- **SQLite**: 轻量级数据库
+---
 
-### 前端技术栈
-- **Vue.js**: 渐进式JavaScript框架
-- **Ant Design Vue**: UI组件库
-- **Axios**: HTTP客户端
-- **TypeScript**: 类型安全的JavaScript
+## ✨ 功能特色
 
-### 部署环境
-- **Docker & Docker Compose**: 容器化部署
-- **Nginx**: 高性能Web服务器和反向代理
+<div align="center">
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 30px;">
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">🎬</div>
+      <div><b>视频浏览</b></div>
+      <div style="font-size: 14px;">首页推荐、分类浏览</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">🔍</div>
+      <div><b>高级搜索</b></div>
+      <div style="font-size: 14px;">多条件组合查询</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">🌙</div>
+      <div><b>暗黑模式切换</b></div>
+      <div style="font-size: 14px;">支持明暗主题切换</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">📥</div>
+      <div><b>下载管理</b></div>
+      <div style="font-size: 14px;">批量下载与管理</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">💬</div>
+      <div><b>视频评论</b></div>
+      <div style="font-size: 14px;">查看社区反馈</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">🎮</div>
+      <div><b>视频播放</b></div>
+      <div style="font-size: 14px;">流畅播放体验</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">📱</div>
+      <div><b>响应式设计</b></div>
+      <div style="font-size: 14px;">适配多种设备</div>
+    </div>
+  </div>
+</div>
 
-## 快速开始
+## 📷 项目截图
 
-### 使用Docker Compose启动（推荐）
+<div align="center">
+  <div style="margin-bottom: 30px;">
+    <img src="img/主页.png" alt="主页" style="width: 80%; max-width: 800px; border-radius: 8px;"/>
+    <p align="center"><b>主页</b> - 展示推荐内容和分类</p>
+  </div>
+  
+  <div style="margin-bottom: 30px;">
+    <img src="img/视频详情页.png" alt="视频详情页" style="width: 80%; max-width: 800px; border-radius: 8px;"/>
+    <p align="center"><b>视频详情页</b> - 播放器和相关信息</p>
+  </div>
+  
+  <div style="margin-bottom: 30px;">
+    <img src="img/搜索页.png" alt="搜索页" style="width: 80%; max-width: 800px; border-radius: 8px;"/>
+    <p align="center"><b>搜索页</b> - 快速找到想要的内容</p>
+  </div>
+  
+  <div style="margin-bottom: 30px;">
+    <img src="img/高级搜索.png" alt="高级搜索" style="width: 80%; max-width: 800px; border-radius: 8px;"/>
+    <p align="center"><b>高级搜索</b> - 多条件筛选</p>
+  </div>
+  
+  <div style="margin-bottom: 30px;">
+    <img src="img/下载页.png" alt="下载页" style="width: 80%; max-width: 800px; border-radius: 8px;"/>
+    <p align="center"><b>下载页</b> - 管理下载任务</p>
+  </div>
+  
+  <div style="margin-bottom: 30px;">
+    <img src="img/手机端下载页示例.png" alt="手机端下载页示例" style="width: 50%; max-width: 400px; border-radius: 8px;"/>
+    <p align="center"><b>手机端下载页示例</b> - 移动设备适配</p>
+  </div>
+</div>
 
-1. 克隆仓库
+## 🛠️ 技术架构
 
-```bash
-git clone https://github.com/your-username/hanime-server.git
-cd hanime-server
+<div align="center">
+  <table>
+    <tr>
+      <th>后端技术</th>
+      <th>前端技术</th>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>Python 3.10</li>
+          <li>FastAPI 框架</li>
+          <li>SQLite 数据存储</li>
+          <li>异步下载服务</li>
+          <li>视频元数据服务</li>
+          <li>Cloudflare 绕过实现</li>
+          <li>LRU缓存优化</li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li>Vue.js 框架</li>
+          <li>TypeScript 类型支持</li>
+          <li>Vite 构建工具</li>
+          <li>Vue Router 路由管理</li>
+          <li>Pinia 状态管理</li>
+          <li>Plyr 视频播放器组件</li>
+          <li>响应式布局设计</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>
+
+### 核心组件
+
+- **下载服务**: 管理视频下载队列、状态跟踪和错误处理
+- **视频服务**: 提供视频搜索、元数据解析和内容推荐
+- **数据缓存**: 优化性能和减少网络请求
+- **Cloudflare绕过**: 解决访问限制问题
+- **Plyr播放器**: 提供流畅的视频播放体验
+
+## 📝 开发计划
+
+> **当前状态**: 本项目已完成基础功能开发，包括视频浏览、搜索、播放、下载等核心功能，可以满足日常使用需求。
+
+TODO：
+
+- [ ] **新番列表**: 展示最新更新的内容
+- [ ] **设置页面**: 用户偏好设置与系统配置
+- [ ] **清单列表**: 包括稍后观看、喜欢的影片、播放清单等
+- [ ] **观看历史**: 记录和管理已观看内容
+
+> 随缘更新，有需要的话可以自行开发。欢迎提交Issue或PR！
+
+## 🚀 部署指南
+
+### Docker 部署（推荐）
+
+现在可以通过 Docker Compose 一键部署整个应用：
+
+1. 创建 `docker-compose.yml` 文件：
+
+```yaml
+version: '3'
+services:
+  hanime-server:
+    image: heisenyu/hanime-server:latest
+    environment:
+      - USE_PROXY=${USE_PROXY:-false}       # 是否使用代理（国内网络必须配置）
+      - PROXY_URL=${PROXY_URL:-}            # 代理地址
+    ports:
+      - "7788:7788"                         # 前端界面端口
+    volumes:
+      - ./downloads:/app/backend/downloads  # 下载目录映射
+      - ./db:/app/backend/db                # 元数据目录映射
+    restart: unless-stopped
 ```
 
-2. 配置环境变量
-
-```bash
-# 复制环境变量示例文件
-cp .env.example .env
-
-# 根据需要编辑.env文件
-nano .env  # 或使用其他编辑器
-```
-
-3. 创建数据目录
-
-```bash
-# 创建下载和日志存储目录
-mkdir -p data/downloads data/logs
-```
-
-4. 启动服务
+2. 运行容器：
 
 ```bash
 docker-compose up -d
 ```
 
-5. 访问应用
+3. 访问应用：
+   - 前端界面：http://localhost:7788
 
-- 前端应用: `http://localhost` (或配置的FRONTEND_PORT端口)
-- 后端API: `http://localhost:8000` (或配置的BACKEND_PORT端口)
-- API文档: `http://localhost:8000/docs` (或配置的BACKEND_PORT端口)
+### 定制构建
 
-### 手动安装
-
-#### 后端安装
+如果您希望自行构建 Docker 镜像：
 
 ```bash
-# 进入后端目录
-cd backend
+# 克隆仓库
+git clone https://github.com/heisenyu/hanime-server
+cd hanime-server
 
-# 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# 构建镜像
+docker build -t hanime-server:custom .
 
-# 安装依赖
-pip install -r requirements.txt
-
-# 创建目录
-mkdir -p downloads logs
-
-# 运行服务
-python main.py
+# 运行容器
+docker run -d -p 7788:7788 -p 8000:8000 -v $(pwd)/downloads:/app/backend/downloads hanime-server:custom
 ```
 
-#### 前端安装
+### 手动部署
 
-```bash
-# 进入前端目录
-cd frontend
+#### 后端部署
+1. 进入 backend 目录
+2. 安装依赖：`pip install -r requirements.txt`
+3. 运行服务器：`python main.py`
 
-# 安装依赖
-npm install
+通过 http://localhost:8000/docs 访问 API 文档
 
-# 开发模式运行
-npm run dev
+#### 前端部署
+1. 进入 frontend 目录
+2. 安装依赖：`npm install`
+3. 开发模式：`npm run dev`
+4. 构建生产版：`npm run build`
 
-# 构建生产版本
-npm run build
-```
+通过 http://localhost:7788 访问前端页面
 
-## 详细配置
 
-### 环境变量配置
+## 📜 免责声明
 
-根目录下的`.env`文件中可以配置以下参数:
+本应用程序（以下简称"本应用"）与原站点及其关联方无任何隶属、合作或授权关系，特此声明如下：
 
-| 变量名 | 描述 | 默认值 | 必填 |
-|---|---|---|---|
-| APP_NAME | 应用名称 | HanimeViewer | 否 |
-| APP_DESCRIPTION | 应用描述 | HanimeViewer API服务 | 否 |
-| APP_VERSION | 应用版本 | 1.0.0 | 否 |
-| RELOAD | 是否启用热重载 | False | 否 |
-| HOST | 后端服务主机 | 0.0.0.0 | 否 |
-| PORT | 后端服务端口 | 8000 | 否 |
-| BACKEND_PORT | Docker映射的后端服务端口 | 8000 | 否 |
-| FRONTEND_PORT | Docker映射的前端服务端口 | 80 | 否 |
-| HANIME_BASE_URL | 基础API URL | https://hanime1.me | 否 |
-| DOWNLOAD_PATH | 下载文件存储路径 | ./data/downloads | 否 |
-| LOG_PATH | 日志文件存储路径 | ./data/logs | 否 |
-| USE_PROXY | 是否使用代理 | False | 否 |
-| PROXY_URL | 代理服务器URL | | 否 |
-| USE_DOWNLOAD_PROXY | 是否为下载使用专用代理 | False | 否 |
-| DOWNLOAD_PROXY_URL | 下载专用代理URL | | 否 |
-| USER_AGENT | HTTP请求的User-Agent | Mozilla/5.0 ... | 否 |
-| LOG_LEVEL | 日志级别 | INFO | 否 |
+### 🔍 数据来源
 
-### Docker配置
+本应用通过合法技术手段仅获取目标网站公开显示的信息，不涉及：
 
-Docker Compose配置支持以下功能:
+* 🔒 用户账户等隐私数据
+* 🛑 网站后端数据库访问
+* ⚠️ 任何形式的注入攻击
 
-- 自动构建前后端服务
-- 数据卷映射，保证数据持久化
-- 环境变量传递
-- 网络配置，确保服务间通信
+### ⚖️ 使用限制
 
-### Nginx配置
+本应用提供的所有内容仅用于：
 
-前端服务使用Nginx配置实现:
+* 📚 技术研究学习
+* ✨ 用户体验优化
+* 🚫 非商业用途展示
 
-- 静态文件服务
-- API请求反向代理
-- 下载文件反向代理
-- 默认首页配置
+### ©️ 版权归属
 
-## 目录结构
+原始视频/图文内容版权均归原始网站或内容制作/发行方所有，本应用:
 
-```
-hanime-server/
-├── backend/                # FastAPI后端
-│   ├── app/                # 应用核心代码
-│   │   ├── api/            # API接口定义
-│   │   │   ├── endpoints/  # 各模块的API端点
-│   │   │   └── routes.py   # 路由配置
-│   │   ├── models/         # 数据模型
-│   │   ├── services/       # 业务逻辑服务
-│   │   ├── utils/          # 工具函数
-│   │   └── config.py       # 配置文件
-│   ├── downloads/          # 下载文件存储目录
-│   ├── logs/               # 日志文件目录
-│   ├── main.py             # 应用入口文件
-│   ├── requirements.txt    # 项目依赖
-│   └── Dockerfile          # 后端Docker配置
-├── frontend/               # Vue.js前端
-│   ├── src/                # 源代码
-│   │   ├── api/            # API调用封装
-│   │   ├── assets/         # 静态资源
-│   │   ├── components/     # 组件
-│   │   ├── router/         # 路由配置
-│   │   ├── stores/         # 状态管理
-│   │   ├── types/          # 类型定义
-│   │   ├── utils/          # 工具函数
-│   │   ├── App.vue         # 根组件
-│   │   └── main.ts         # 入口文件
-│   ├── Dockerfile          # 前端Docker配置
-│   └── nginx.conf          # Nginx配置
-├── data/                   # 数据目录
-│   ├── downloads/          # 下载文件目录
-│   └── logs/               # 日志文件目录
-├── docker-compose.yml      # Docker Compose配置
-├── .env.example            # 环境变量示例
-├── .env                    # 环境变量配置(本地)
-├── .gitignore              # Git忽略文件配置
-├── .dockerignore           # Docker忽略文件配置
-└── README.md               # 项目说明文档
-```
+* 💾 不存储任何版权内容（除用户主动下载）
+* ✂️ 不修改原始内容
+* 🏷️ 不声称拥有内容所有权
 
-## 开发指南
+### 🛡️ 责任豁免
 
-### 代码风格
+使用者应知晓：
 
-- 后端：遵循PEP 8 Python代码风格
-- 前端：遵循Vue风格指南和TypeScript最佳实践
+* ⏳ 本应用不保证数据的完整性和实时性
+* 🙅‍♂️ 使用产生的一切后果由用户自行承担
+* ⛔ 不得用于非法用途
 
-### 后端开发
+## 📄 许可证
 
-1. 设置Python虚拟环境:
+本项目采用 Apache License Version 2.0 许可证，详细条款请参阅项目根目录下的 LICENSE 文件。
 
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+主要条款包括：
+- 允许商用、修改、分发和私有使用
+- 要求保留版权声明和许可证文件
+- 提供修改说明（如有）
+- 不提供质量担保
+- 不承担用户使用风险
 
-2. 运行开发服务器:
+---
 
-```bash
-python main.py
-```
-
-3. API文档访问:
-
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-### 前端开发
-
-1. 安装依赖:
-
-```bash
-cd frontend
-npm install
-```
-
-2. 运行开发服务器:
-
-```bash
-npm run dev
-```
-
-3. 构建生产版本:
-
-```bash
-npm run build
-```
-
-## 常见问题
-
-### Q: 如何修改前后端通信端口?
-A: 修改`.env`文件中的`BACKEND_PORT`和`FRONTEND_PORT`变量，然后重启Docker容器。
-
-### Q: 视频无法播放或下载速度很慢怎么办?
-A: 尝试配置代理服务。在`.env`文件中设置`USE_PROXY=True`和`PROXY_URL=你的代理地址`。
-
-### Q: 如何查看应用日志?
-A: 日志文件存储在`data/logs`目录中，也可以通过Docker命令查看容器日志:
-```bash
-docker logs hanime-server-backend
-docker logs hanime-server-frontend
-```
-
-### Q: 下载的视频存储在哪里?
-A: 下载的视频存储在`data/downloads`目录中，可以通过文件浏览器直接访问。
-
-## 贡献指南
-
-欢迎提交问题报告和代码贡献！请按以下步骤操作:
-
-1. Fork本仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 开启Pull Request
-
-## 许可证
-
-本项目采用MIT许可证。详见`LICENSE`文件。 
+<div align="center">
+  <p>ℹ️ 温馨提示：建议通过官方渠道支持原站内容，并点击广告以支持网站运营者。</p>
+  <p>🌟 如果您喜欢这个项目，请考虑给它点个星！</p>
+</div>
