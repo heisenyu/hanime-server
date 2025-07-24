@@ -3,6 +3,7 @@
     <!-- 视频播放区域 -->
     <div class="video-player-container">
       <VideoPlayer
+        ref="videoPlayerRef"
         :stream-urls="videoDetail.stream_urls"
         :default-video-url="videoDetail.default_video_url"
         :cover-url="videoDetail.cover_url"
@@ -239,6 +240,7 @@ export default defineComponent({
     const selectAll = ref(false);
     const selectedSeries = ref<string[]>([]);
     const selectedSeriesMap = ref<Record<string, boolean>>({});
+    const videoPlayerRef = ref<InstanceType<typeof VideoPlayer> | null>(null);
     // const showDebugInfo = ref('development');
     const showDebugInfo = ref(false); // 改为布尔值，false表示不显示调试信息，true表示显示
     const debugLogs = ref<string[]>([]);
@@ -400,6 +402,30 @@ export default defineComponent({
       addDebugLog(`评论数已更新: ${count}`);
     };
 
+    // 重置播放器状态
+    const resetVideoPlayer = () => {
+      if (videoPlayerRef.value) {
+        // 调用VideoPlayer组件的重置方法（如果有）
+        // 如果VideoPlayer没有暴露重置方法，可能需要修改VideoPlayer组件
+        if (typeof videoPlayerRef.value.reset === 'function') {
+          videoPlayerRef.value.reset();
+        }
+        // 确保视频停止播放
+        try {
+          const videoElement = videoPlayerRef.value.$el.querySelector('video');
+          if (videoElement) {
+            videoElement.pause();
+            videoElement.currentTime = 0;
+            videoElement.src = '';
+            videoElement.load();
+          }
+        } catch (e) {
+          console.error('停止视频播放失败', e);
+        }
+        addDebugLog('重置播放器状态');
+      }
+    };
+
     const fetchVideoDetail = async () => {
       const videoId = route.params.id as string;
       
@@ -413,6 +439,9 @@ export default defineComponent({
       try {
         loading.value = true;
         error.value = false;
+        
+        // 重置播放器状态，确保之前的视频停止播放
+        resetVideoPlayer();
 
         const response = await VideoApi.getVideoDetail(videoId);
 
@@ -484,6 +513,8 @@ export default defineComponent({
 
     const goToVideo = (videoId: string) => {
       if (videoId === videoDetail.value.video_id) return;
+      // 在导航前确保停止当前视频播放
+      resetVideoPlayer();
       router.push(`/video/${videoId}`);
     };
 
@@ -711,6 +742,7 @@ export default defineComponent({
       selectedSeries,
       selectedSeriesMap,
       isDownloading,
+      videoPlayerRef,
       handleDownload,
       formatDate,
       formatViewCount,
@@ -736,7 +768,8 @@ export default defineComponent({
       startDownloadProcess,
       defaultAvatarUrl,
       handleImageError,
-      highlightDownloadedSeriesVideos
+      highlightDownloadedSeriesVideos,
+      resetVideoPlayer
     };
   }
 });

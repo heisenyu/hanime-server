@@ -518,6 +518,32 @@ export default defineComponent({
       }
     };
 
+    // 重置播放器
+    const reset = () => {
+      addDebugLog('重置播放器');
+      
+      // 停止视频播放
+      if (plyrPlayer.value) {
+        try {
+          plyrPlayer.value.pause();
+          
+          // 重置时间位置
+          plyrPlayer.value.currentTime = 0;
+          
+          // 销毁播放器
+          destroyPlyrPlayer();
+          
+          addDebugLog('播放器已暂停并重置');
+        } catch (e) {
+          console.error('重置播放器失败:', e);
+          addDebugLog(`重置播放器失败: ${e}`);
+        }
+      }
+      
+      // 重置回到封面状态
+      isPlaying.value = false;
+    };
+
     // 监听自动播放属性
     watch(() => props.autoPlay, (newVal) => {
       if (newVal && !isPlaying.value) {
@@ -588,7 +614,8 @@ export default defineComponent({
       debugLogs,
       playVideo,
       handleVideoError,
-      currentQuality
+      currentQuality,
+      reset
     };
   }
 });

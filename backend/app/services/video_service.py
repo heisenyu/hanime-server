@@ -451,7 +451,7 @@ class VideoService:
                     user_avatar = user_avatar_ele.attr("src") if user_avatar_ele else ""
 
                     # 获取用户名和评论时间
-                    username_ele = comment_elem.ele("xpath:./preceding-sibling::div[2]//a")
+                    username_ele = comment_elem.ele("xpath:./preceding-sibling::div[1]//div[contains(@class, 'comment-index-text')][1]//a")
                     username_time_text = username_ele.text if username_ele else ""
 
                     # 分割用户名和时间
@@ -471,7 +471,7 @@ class VideoService:
                         comment_time = time_ele.text.strip() if time_ele else ""
 
                     # 获取评论内容
-                    comment_content_ele = comment_elem.ele("xpath:./preceding-sibling::div[1]")
+                    comment_content_ele = comment_elem.ele("xpath:./preceding-sibling::div[1]//div[contains(@class, 'comment-index-text')][2]")
                     comment_content = comment_content_ele.text.strip() if comment_content_ele else ""
 
                     # 获取点赞数

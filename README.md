@@ -17,19 +17,16 @@
   <a href="#-许可证">许可证</a>
 </p>
 
-## 🔞 注意
-
-本项目内容涉及成人内容，未满18岁禁止使用！
 
 ## 📜 项目简介
 
 Han1me Server 是一个基于 Python 和 Vue.js 开发的全栈应用，用于浏览和播放 hanime 视频资源。项目采用前后端分离架构，后端使用 FastAPI 提供 RESTful API 接口，前端使用 Vue.js 构建响应式用户界面，支持多平台访问。
 
-整个应用通过 Docker 容器化技术实现一键部署，大大简化了安装和使用流程。
+整个应用通过 Docker 容器化技术实现一键部署，大大简化了安装和使用流程。适合在NAS设备（如群晖、威联通等）上部署，可作为家庭媒体服务器使用，支持远程访问和视频管理。
 
 > **关于作者**: 作者并非Vue开发者，前端主要借助Cursor AI辅助工具进行开发，如有不足之处，敬请谅解。
 
-> **项目灵感**: 本项目的页面布局和功能设计参考了 [YenalyLiew/Han1meViewer](https://github.com/YenalyLiew/Han1meViewer) Android端应用。由于原项目已标记为不再维护，促使我开发了这个基于Web的替代版本，让更多设备都能方便使用。
+> **项目灵感**: 本项目的页面布局和功能设计参考了 [YenalyLiew/Han1meViewer](https://github.com/YenalyLiew/Han1meViewer) Android端应用。由于原项目已标记为不再维护，促使我开发了这个基于Web的替代版本，让更多设备都能方便使用。本项目支持直接下载视频到NAS存储设备，便于媒体库集中管理和随时观看。
 
 ---
 
@@ -71,6 +68,11 @@ Han1me Server 是一个基于 Python 和 Vue.js 开发的全栈应用，用于�
       <div style="font-size: 32px;">📱</div>
       <div><b>响应式设计</b></div>
       <div style="font-size: 14px;">适配多种设备</div>
+    </div>
+    <div style="text-align: center; width: 200px;">
+      <div style="font-size: 32px;">🖥️</div>
+      <div><b>NAS 部署</b></div>
+      <div style="font-size: 14px;">家庭媒体中心</div>
     </div>
   </div>
 </div>
@@ -179,8 +181,10 @@ services:
   hanime-server:
     image: heisenyu/hanime-server:latest
     environment:
-      - USE_PROXY=${USE_PROXY:-false}       # 是否使用代理（国内网络必须配置）
-      - PROXY_URL=${PROXY_URL:-}            # 代理地址
+      - USE_PROXY=${USE_PROXY:-true}               # 是否使用代理（国内网络必须配置）
+      - PROXY_URL=${PROXY_URL:-}                    # 代理地址
+      - USE_DOWNLOAD_PROXY=${USE_DOWNLOAD_PROXY:-false}  # 下载视频时是否使用代理，默认false
+      - DOWNLOAD_PROXY_URL=${DOWNLOAD_PROXY_URL:-}       # 下载视频专用代理地址，未设置则使用PROXY_URL
     ports:
       - "7788:7788"                         # 前端界面端口
     volumes:
@@ -189,14 +193,37 @@ services:
     restart: unless-stopped
 ```
 
-2. 运行容器：
+2. 代理设置说明：
+   - `USE_PROXY`: 设置为 `true` 表示元数据获取使用代理（国内网络必须开启）
+   - `PROXY_URL`: 代理服务器地址
+   - `USE_DOWNLOAD_PROXY`: 设置为 `true` 表示下载视频时使用代理，默认为 `false`（经测试，下载视频可以不走代理）
+   - `DOWNLOAD_PROXY_URL`: 下载视频专用代理地址，如不设置则使用 `PROXY_URL`
+
+3. 运行容器：
 
 ```bash
 docker-compose up -d
 ```
 
-3. 访问应用：
+4. 访问应用：
    - 前端界面：http://localhost:7788
+
+### NAS 部署指南
+
+本项目适合在各类NAS系统上部署：
+
+#### 群晖 (Synology) NAS 部署
+1. 在套件中心安装Docker
+2. 在Docker应用中创建上述docker-compose.yml文件
+3. 映射下载目录到您的媒体文件夹
+
+#### 威联通 (QNAP) NAS 部署
+1. 通过Container Station安装
+2. 使用上述docker-compose配置
+3. 映射存储卷到媒体文件夹
+
+#### 其他 NAS 系统
+只要支持Docker，均可按照类似步骤进行部署
 
 ### 定制构建
 
