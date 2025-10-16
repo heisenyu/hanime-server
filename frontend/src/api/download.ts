@@ -78,6 +78,17 @@ export const DownloadApi = {
   },
 
   /**
+   * 获取封面URL
+   * 统一通过本地API获取，后端会自动处理：
+   * - 如果本地存在，直接返回
+   * - 如果不存在，实时下载后返回
+   * @param videoId 视频ID
+   */
+  getCoverUrl: (videoId: string): string => {
+    return `/api/downloads/cover/${videoId}`;
+  },
+
+  /**
    * 创建WebSocket连接以接收下载进度更新
    * @param onMessage 消息处理函数
    */

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends, HTTPException
 from app.services.download_service import download_manager
 from app.models.download import DownloadRequest, DownloadAction
 from typing import List, Dict, Any, Optional
@@ -97,4 +97,42 @@ async def get_downloaded_file(video_id: str):
         path=file_path,
         filename=download_info['filename'],
         media_type='video/mp4'
+    )
+
+
+@router.get("/cover/{video_id}")
+async def get_cover(video_id: str):
+    """
+    获取本地封面图片
+    如果本地不存在，则实时获取视频详情并下载封面
+    """
+    cover_filename = f"{video_id}.jpg"
+    cover_path = settings.COVER_PATH / cover_filename
+    
+    # 如果本地封面不存在，尝试下载
+    if not cover_path.exists():
+        logger.info(f"本地封面不存在，尝试下载视频 {video_id} 的封面")
+        
+        # 获取视频详情
+        from app.services.video_service import VideoService
+        video_service = VideoService()
+        
+        try:
+            video_detail = await video_service.get_video_detail(video_id)
+            if video_detail and video_detail.cover_url:
+                # 下载封面
+                await download_manager.download_cover(video_id, video_detail.cover_url)
+                
+                # 再次检查是否下载成功
+                if not cover_path.exists():
+                    raise HTTPException(status_code=404, detail="封面下载失败")
+            else:
+                raise HTTPException(status_code=404, detail="无法获取视频信息")
+        except Exception as e:
+            logger.error(f"获取封面失败: {str(e)}")
+            raise HTTPException(status_code=404, detail=f"获取封面失败: {str(e)}")
+    
+    return FileResponse(
+        path=cover_path,
+        media_type='image/jpeg'
     ) 

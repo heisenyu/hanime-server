@@ -78,6 +78,7 @@ export interface HomeData {
   new_arrivals_videos: VideoSection[];
   new_uploads_videos: VideoSection[];
   chinese_subtitle_videos: VideoSection[];
+  popular_videos: VideoSection[];
   daily_rank_videos: VideoSection[];
   monthly_rank_videos: VideoSection[];
   error?: string;

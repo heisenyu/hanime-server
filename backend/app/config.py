@@ -41,6 +41,7 @@ class Settings(BaseModel):
     # 文件设置
     DOWNLOAD_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "downloads")))
     DB_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "db")))
+    COVER_PATH: Path = Path(os.getenv("COVER_PATH", str(backend_root / "downloads" / "covers")))
 
     # 爬虫设置
     USER_AGENT: str = os.getenv("USER_AGENT","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
@@ -65,10 +66,12 @@ settings = Settings()
 # 打印下载目录信息
 logger.info(f"下载目录: {settings.DOWNLOAD_PATH}")
 logger.info(f"数据库目录: {settings.DB_PATH}")
+logger.info(f"封面目录: {settings.COVER_PATH}")
 
 # 确保下载目录存在
 settings.DOWNLOAD_PATH.mkdir(exist_ok=True)
 settings.DB_PATH.mkdir(exist_ok=True)
+settings.COVER_PATH.mkdir(parents=True, exist_ok=True)
 
 
 # 配置并初始化logger

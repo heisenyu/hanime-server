@@ -11,6 +11,7 @@ import aiosqlite
 from app.models.download import DownloadStatus, DownloadSegment, DownloadProgress
 from app.services.video_service import VideoService
 from app.config import settings, logger
+import aiofiles
 import aiofiles.os
 from urllib.parse import urlparse
 
@@ -980,7 +981,11 @@ class DownloadManager:
             # 创建下载记录
             file_path = settings.DOWNLOAD_PATH / filename
             
-            # 写入数据库
+            # 预下载封面到本地（不阻塞主流程）
+            # 如果下载失败也不影响视频下载，用户访问时会自动重试
+            asyncio.create_task(self.download_cover(video_id, video_detail.cover_url))
+            
+            # 写入数据库（
             async with aiosqlite.connect(self.db_path) as conn:
                 await conn.execute(
                     "INSERT OR REPLACE INTO downloads (video_id, title, filename, cover_url, url, status, total_size, downloaded, retry_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -1052,6 +1057,47 @@ class DownloadManager:
             filename = name[:196] + ext
             
         return filename
+
+    async def download_cover(self, video_id: str, cover_url: str) -> bool:
+        """
+        下载封面图片到本地
+        :param video_id: 视频ID
+        :param cover_url: 封面URL
+        :return: 是否下载成功
+        """
+        if not cover_url:
+            return False
+            
+        try:
+            # 创建封面文件名
+            cover_filename = f"{video_id}.jpg"
+            cover_path = settings.COVER_PATH / cover_filename
+            
+            # 如果封面已存在，跳过下载
+            if cover_path.exists():
+                logger.info(f"封面已存在: {cover_filename}")
+                return True
+            
+            # 下载封面
+            logger.info(f"开始下载封面: {cover_url}")
+            client = await self.get_http_client(cover_url)
+            
+            async with client.stream("GET", cover_url, timeout=30.0) as response:
+                if response.status_code != 200:
+                    logger.error(f"下载封面失败，状态码: {response.status_code}")
+                    return False
+                
+                # 保存封面
+                async with aiofiles.open(cover_path, "wb") as f:
+                    async for chunk in response.aiter_bytes(8192):
+                        await f.write(chunk)
+            
+            logger.success(f"封面下载成功: {cover_filename}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"下载封面失败: {str(e)}")
+            return False
 
     async def get_http_client(self, url: str):
         """获取或创建HTTP客户端，实现连接池复用"""

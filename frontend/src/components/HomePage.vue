@@ -60,6 +60,7 @@ export default defineComponent({
       new_arrivals_videos: [],
       new_uploads_videos: [],
       chinese_subtitle_videos: [],
+      popular_videos: [],
       daily_rank_videos: [],
       monthly_rank_videos: [],
     });
@@ -68,6 +69,7 @@ export default defineComponent({
       new_arrivals: homeData.value.new_arrivals_videos,
       new_uploads: homeData.value.new_uploads_videos,
       chinese_subtitle: homeData.value.chinese_subtitle_videos,
+      popular: homeData.value.popular_videos,
       daily_rank: homeData.value.daily_rank_videos,
       monthly_rank: homeData.value.monthly_rank_videos
     }));

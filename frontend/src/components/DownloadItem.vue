@@ -15,8 +15,8 @@
       <!-- 缩略图 -->
       <div class="item-thumbnail">
         <img 
-          v-if="download.cover_url" 
-          :src="download.cover_url" 
+          v-if="coverUrl" 
+          :src="coverUrl" 
           class="thumbnail" 
           :alt="extractFilename(download.filename) || download.title"
           loading="lazy"
@@ -244,6 +244,11 @@ const extractFilename = (filename: string): string => {
   const match = filename.match(/^[^_]+_(.+)\.mp4$/);
   return match ? match[1] : filename;
 };
+
+// 计算属性：获取封面URL
+const coverUrl = computed(() => {
+  return DownloadApi.getCoverUrl(props.download.video_id);
+});
 
 // 获取状态类型（用于标签颜色）
 const getStatusType = () => {

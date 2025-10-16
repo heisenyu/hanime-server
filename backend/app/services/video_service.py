@@ -39,9 +39,10 @@ class VideoService:
 
             # 处理其他视频分类（结构相同）
             other_video_sections = [
-                {"name": "new_arrivals_videos", "display_name": "最新上市", "index": "2"},
-                {"name": "new_uploads_videos", "display_name": "最新上传", "index": "3"},
-                {"name": "chinese_subtitle_videos", "display_name": "中文字幕", "index": "4"},
+                {"name": "new_arrivals_videos", "display_name": "最新上市", "index": "1"},
+                {"name": "new_uploads_videos", "display_name": "最新上传", "index": "2"},
+                {"name": "chinese_subtitle_videos", "display_name": "中文字幕", "index": "3"},
+                {"name": "popular_videos" , "display_name": "他们在看", "index": "4"},
                 {"name": "daily_rank_videos", "display_name": "本日排行", "index": "last()-2"},
                 {"name": "monthly_rank_videos", "display_name": "本月排行", "index": "last()-1"}
             ]
@@ -86,7 +87,7 @@ class VideoService:
         """提取最新视频（特殊结构）"""
         latest_videos = []
 
-        latest_videos_ele = recommended_elem.ele("xpath:./a[1]")
+        latest_videos_ele = recommended_elem.ele("xpath:./div[1]/a[1]")
         if not latest_videos_ele:
             return []
 
@@ -132,7 +133,7 @@ class VideoService:
             )
 
         latest_videos.append({
-            "title": "最新视频",
+            "title": "最新里番",
             "search_suffix": to_simplified(search_suffix),
             "videos": video_info
         })
