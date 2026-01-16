@@ -1,44 +1,32 @@
-# Git相关
+# Git
 .git
-.github
 .gitignore
 
-# 数据和日志
-data/
-logs/
+# Dependencies
+node_modules
+
+# Build Output
+dist
+out
+
+# Logs
+logs
 *.log
 
-# 环境变量
+# Environment Variables
 .env
 .env.*
+!.env.example
 
-# 开发文件
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
-**/.Python
-**/node_modules/
-**/.npm
-**/.venv
-**/.vscode
-**/.idea
-**/frontend/.vite
-.idea/
-.vscode/
+# IDEs
+.idea
+.vscode
+*.swp
+*.swo
 
-# 说明文档
-README.md
-LICENSE
-CHANGELOG.md
-CONTRIBUTING.md
+# Backend Specific
+backend/db/
+backend/downloads/
 
-# Docker相关
-.dockerignore
-docker-compose*.yml
-**/Dockerfile
-**/docker-compose*
-
-# 测试文件
-**/*test*
-**/tests/ 
+*.sqlite
+*.ps1

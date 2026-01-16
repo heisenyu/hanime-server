@@ -72,10 +72,9 @@ class HomeData(BaseModel):
     latest_videos: List[Dict[str, Any]] = []
     new_arrivals_videos: List[Dict[str, Any]] = []
     new_uploads_videos: List[Dict[str, Any]] = []
-    chinese_subtitle_videos: List[Dict[str, Any]] = []
     popular_videos: List[Dict[str, Any]] = []
-    daily_rank_videos: List[Dict[str, Any]] = []
-    monthly_rank_videos: List[Dict[str, Any]] = []
+    ai_generated_videos: List[Dict[str, Any]] = []
+    bubble_tea_videos: List[Dict[str, Any]] = []
     error: Optional[str] = None
 
 

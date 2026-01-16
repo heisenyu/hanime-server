@@ -1,9 +1,9 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: hanime-server:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: heisenyu/hanime-server:latest
     container_name: hanime-server
     restart: unless-stopped
     environment:
@@ -13,4 +13,4 @@ services:
       - ./data/downloads:/app/backend/downloads
       - ./data/db:/app/backend/db
     ports:
-      - "${APP_PORT:-7788}:7788"
+      - "7788:7788"

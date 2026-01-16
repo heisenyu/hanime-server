@@ -34,32 +34,27 @@ class VideoService:
                     error="无法获取推荐视频数据"
                 )
 
-            # 单独处理最新视频（结构不同）
-            latest_videos = self._extract_latest_videos(recommended_elem)
-
             # 处理其他视频分类（结构相同）
             other_video_sections = [
-                {"name": "new_arrivals_videos", "display_name": "最新上市", "index": "1"},
-                {"name": "new_uploads_videos", "display_name": "最新上传", "index": "2"},
-                {"name": "chinese_subtitle_videos", "display_name": "中文字幕", "index": "3"},
-                {"name": "popular_videos" , "display_name": "他们在看", "index": "4"},
-                {"name": "daily_rank_videos", "display_name": "本日排行", "index": "last()-2"},
-                {"name": "monthly_rank_videos", "display_name": "本月排行", "index": "last()-1"}
+                {"name": "latest_videos", "display_name": "最新里番", "matcher": "裏番"},
+                {"name": "new_arrivals_videos", "display_name": "最新上市", "matcher": "最新上市"},
+                {"name": "new_uploads_videos", "display_name": "最新上传", "matcher": "最新上傳"},
+                {"name": "popular_videos", "display_name": "他们在看", "matcher": "他們在看"},
+                {"name": "ai_generated_videos", "display_name": "AI生成", "matcher": "AI生成"},
+                {"name": "bubble_tea_videos", "display_name": "泡面番", "matcher": "泡麵番"},
             ]
 
+
             # 创建HomeData对象
-            home_data = HomeData(
-                banners=banner_data,
-                latest_videos=latest_videos
-            )
+            home_data = HomeData(banners=banner_data)
 
             # 处理其他视频分类
             for section in other_video_sections:
                 section_name = section["name"]
                 display_name = section["display_name"]
-                index = section["index"]
+                matcher = section["matcher"]
 
-                section_data = self._extract_section_videos(recommended_elem, index, display_name)
+                section_data = self._extract_section_videos(recommended_elem, matcher, display_name)
                 setattr(home_data, section_name, section_data)
 
             return home_data
@@ -69,9 +64,11 @@ class VideoService:
 
     def _extract_banner_data(self, page_ele) -> BannerVideo:
         """提取首页头图数据"""
-        banner_img_ele = page_ele.ele("xpath://div[@class='hidden-xs']//img[2]")
         banner_title_ele = page_ele.ele("xpath://div[@id='home-banner-wrapper']//h1")
         banner_desc_ele = page_ele.ele("xpath://div[@id='home-banner-wrapper']//h4")
+
+        #  banner_img_ele 是 div[@id='home-banner-wrapper'] 上一个 兄弟 div 下的 img 标签
+        banner_img_ele = page_ele.ele("xpath://div[@id='home-banner-wrapper']//preceding-sibling::div//img")
 
         image_url = banner_img_ele.attr("src") if banner_img_ele else ""
         video_id = self._extract_video_id_from_image(image_url)
@@ -83,69 +80,19 @@ class VideoService:
             description=banner_desc_ele.text.strip() if banner_desc_ele else ""
         )
 
-    def _extract_latest_videos(self, recommended_elem) -> List[Dict[str, Any]]:
-        """提取最新视频（特殊结构）"""
-        latest_videos = []
 
-        latest_videos_ele = recommended_elem.ele("xpath:./div[1]/a[1]")
-        if not latest_videos_ele:
-            return []
-
-        search_url = latest_videos_ele.attr("href") if latest_videos_ele else ""
-        search_suffix = search_url.split("?")[1] if search_url and "?" in search_url else ""
-
-        # 获取相邻的视频容器div
-        latest_videos_div = latest_videos_ele.ele("xpath:./following-sibling::div")
-        if not latest_videos_div:
-            return []
-
-        # 获取所有 a 标签（注意与其他分类不同）
-        video_info_ele = latest_videos_div.eles("xpath:.//a")
-        video_info = []
-
-        # 用于跟踪已处理的视频ID，避免重复
-        seen_video_ids = set()
-
-        for video_ele in video_info_ele:
-            video_url = video_ele.attr("href")
-            video_id = self._extract_video_id_from_url(video_url)
-
-            # 跳过已处理的视频ID
-            if video_id in seen_video_ids:
-                continue
-            seen_video_ids.add(video_id)
-
-            # 获取 img
-            img_ele = video_ele.ele("xpath:.//img")
-            img_url = img_ele.attr("src") if img_ele else ""
-
-            # 获取视频名
-            title_ele = video_ele.ele("xpath:.//div[1]")
-            title = title_ele.text.strip() if title_ele else ""
-
-            video_info.append(
-                VideoBase(
-                    video_id=video_id,
-                    cover_url=img_url,
-                    title=title
-                )
-
-            )
-
-        latest_videos.append({
-            "title": "最新里番",
-            "search_suffix": to_simplified(search_suffix),
-            "videos": video_info
-        })
-
-        return latest_videos
-
-    def _extract_section_videos(self, recommended_elem, index, display_name) -> List[Dict[str, Any]]:
+    def _extract_section_videos(self, recommended_elem, matcher, display_name) -> List[Dict[str, Any]]:
         """提取特定分区的视频列表"""
         section_videos = []
 
-        # 获取分区标题元素
-        section_ele = recommended_elem.ele(f"xpath:./a[position()={index}]")
+        # 获取分区标题元素 (根据 href =&? 中间的关键词匹配 )
+        # <a class="horizontal-row-title" style="text-decoration: none;" href="https://hanime1.me/search?genre=裏番&sort=最新上傳">
+        #     <h3>里番<div><span class="hidden-xs">查看</span>更多<span class="material-icons">arrow_forward_ios</span></div></h3>
+        # </a>
+
+        # section_ele = recommended_elem.ele(f"xpath:./a[contains(., '{matcher}')]")
+        section_ele = recommended_elem.ele(f"xpath:./a[substring-before(concat(substring-after(@href, '='), '&'), '&')='{matcher}']")
+
         if not section_ele:
             return []
 
@@ -161,16 +108,9 @@ class VideoService:
         video_elements = videos_div.eles("xpath:.//div[@title]")
         video_info_list = []
 
-        # for video_ele in video_elements:
-        #     video_info = self._extract_video_info(video_ele)
-        #     video_info_list.append(video_info)
-
-        # 每隔一个取一个（取第1、3、5...个）
-        for i in range(0, len(video_elements), 2):
-            video_ele = video_elements[i]
+        for video_ele in video_elements[:10]:
             video_info = self._extract_detailed_video_info(video_ele)
-            if video_info:
-                video_info_list.append(video_info)
+            video_info_list.append(video_info)
 
         section_videos.append({
             "title": display_name,
@@ -182,6 +122,87 @@ class VideoService:
 
     def _extract_detailed_video_info(self, video_ele) -> Optional[VideoPreview]:
         """从单个 详细视频 元素中提取信息"""
+        try:
+            # 获取视频标题
+            title_elem = video_ele.s_ele("xpath:.//*[contains(@class, 'title')]")
+            video_title = (title_elem.text.strip() if title_elem else None) or ""
+
+            # 获取视频链接
+            overlay_ele = video_ele.ele("xpath:.//a[contains(@class, 'video-link')]")
+            video_url = overlay_ele.attr("href") if overlay_ele else ""
+
+            video_id = self._extract_video_id_from_url(video_url)
+
+            # 如果没有视频ID则跳过
+            if not video_id:
+                return None
+
+            # 获取封面图
+            img_ele = video_ele.ele("xpath:.//img[contains(@class, 'main-thumb')]")
+            img_url = img_ele.attr("src") if img_ele else ""
+
+            # 获取时长
+            duration_ele = video_ele.ele(
+                "xpath:.//div[contains(@class, 'duration')]")
+            duration_text = duration_ele.text.strip() if duration_ele else ""
+
+            # 获取点赞率和点赞人数
+            like_rate = ""
+            views_text = ""
+
+            # 尝试新版 stats-container
+            stats_container = video_ele.ele("xpath:.//div[contains(@class, 'stats-container')]")
+            if stats_container:
+
+                # 点赞率
+                like_item = stats_container.ele("xpath:.//div[contains(@class, 'stat-item')][1]")
+                if like_item:
+                    like_text = like_item.text.strip()
+                    # 匹配 "100%"
+                    rate_match = re.search(r'(\d+%)', like_text)
+                    if rate_match:
+                        like_rate = rate_match.group(1)
+
+                # 观看次数
+                views_item = stats_container.ele("xpath:.//div[contains(@class, 'stat-item')][2]")
+                if views_item:
+                    views_text = views_item.text.strip()
+
+            # 获取发行商信息
+            studio = {}
+            studio_ele = video_ele.ele("xpath:.//div[contains(@class, 'subtitle')]//a")
+            if studio_ele:
+                full_text = studio_ele.text.strip()
+                studio_name = full_text.split("•")[0].strip() if "•" in full_text else full_text
+                studio_url = studio_ele.attr("href") if studio_ele else ""
+                # 从URL中提取查询参数
+                studio_query = studio_url.split("?")[1] if studio_url and "?" in studio_url else ""
+
+                studio = VideoStudio(
+                    name=studio_name,
+                    query=studio_query
+                )
+
+            return VideoPreview(
+                video_id=video_id,
+                cover_url=img_url,
+                title=video_title,
+                duration=duration_text,
+                view_count=self._parse_views(views_text),
+                like_rate=like_rate,
+                # like_count=like_count,
+                studio=studio
+            )
+
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            logger.error(f"提取视频信息错误: {str(e)}")
+            return None
+
+
+    def _extract_detailed_video_info_old(self, video_ele) -> Optional[VideoPreview]:
+        """老版本，但是系列视频用的是老版本的"""
         try:
             # 获取视频标题
             title_elem = video_ele.s_ele("xpath:.//*[contains(@class, 'card-mobile-title')]")
@@ -749,7 +770,7 @@ class VideoService:
             'xpath://*[@id="player-div-wrapper"]//*[@id="playlist-scroll"]//*[contains(@class, "multiple-link-wrapper")]')
 
         for video_ele in series_items:
-            video_info = self._extract_detailed_video_info(video_ele)
+            video_info = self._extract_detailed_video_info_old(video_ele)
 
             if video_info:
                 series_videos.append(video_info)
