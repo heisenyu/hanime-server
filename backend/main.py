@@ -27,8 +27,8 @@ def log_proxy_status():
     else:
         logger.info("下载视频代理服务未启用")
 
-    if settings.USE_CLOUDFLARE_BYPASS:
-        logger.info("Cloudflare Bypass服务已启用")
+    if settings.CLOUDFLARE_BYPASS_SERVICE_URL:
+        logger.info(f"Cloudflare Bypass服务已启用，服务地址: {settings.CLOUDFLARE_BYPASS_SERVICE_URL}")
     else:
         logger.info("Cloudflare Bypass服务未启用")
 

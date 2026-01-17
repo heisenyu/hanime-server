@@ -204,8 +204,6 @@ services:
     image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
     container_name: cf-bypass
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       - WORKERS=1
     deploy:
@@ -229,6 +227,8 @@ docker-compose up -d
 
 4. 访问应用：
    - 前端界面：http://localhost:7788
+
+> 💡 **温馨提示**: 首次进入时，系统会自动进行 Cloudflare 5s 盾验证，耗时可能较长（5-10秒），请耐心等待。验证成功后，凭证会被缓存，后续访问将极其流畅。
 
 ### NAS 部署指南
 

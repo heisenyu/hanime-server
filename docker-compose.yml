@@ -1,8 +1,5 @@
 services:
   app:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
     image: heisenyu/hanime-server:latest
     container_name: hanime-server
     restart: unless-stopped
@@ -22,8 +19,6 @@ services:
     image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
     container_name: cf-bypass
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       - WORKERS=1
     deploy:
