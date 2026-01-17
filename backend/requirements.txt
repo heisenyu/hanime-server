@@ -8,4 +8,3 @@ aiosqlite~=0.21.0
 aiofiles~=24.1.0
 loguru~=0.7.2
 python-dotenv~=1.1.0
-curl_cffi~=0.11.0

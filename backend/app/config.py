@@ -54,6 +54,8 @@ class Settings(BaseModel):
     USE_DOWNLOAD_PROXY: bool = os.getenv("USE_DOWNLOAD_PROXY", "False").lower() in ("true", "1", "t")
     DOWNLOAD_PROXY_URL: Optional[str] = os.getenv("DOWNLOAD_PROXY_URL", os.getenv("PROXY_URL"))
 
+    CLOUDFLARE_BYPASS_SERVICE_URL: str = os.getenv("CLOUDFLARE_BYPASS_SERVICE_URL", "http://cf-bypass:8000")
+
     # 日志设置
     LOG_PATH: Path = Path(os.getenv("LOG_PATH", str(backend_root / "logs")))
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
