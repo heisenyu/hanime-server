@@ -2,7 +2,7 @@ from DrissionPage.common import make_session_ele
 
 from app.models.video import *
 from app.config import settings, logger
-from app.utils.cloudflare_bypass import CloudflareBypasser
+from app.utils.cloudflare_bypass import cf_bypasser
 from app.utils.chinese_converter import to_simplified, convert_dict, convert_list
 
 import re
@@ -12,7 +12,7 @@ import json
 class VideoService:
     def __init__(self):
         """初始化视频服务"""
-        self.cf_bypasser = CloudflareBypasser()
+        self.cf_bypasser = cf_bypasser
 
     async def get_home_data(self) -> HomeData:
         """获取首页数据，包括头图和推荐视频"""

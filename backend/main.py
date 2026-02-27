@@ -9,6 +9,7 @@ import time
 
 from app.api.routes import api_router
 from app.config import settings, logger
+from app.utils.cloudflare_bypass import cf_bypasser
 
 
 def log_proxy_status():
@@ -42,7 +43,9 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # 应用关闭时的清理工作可以放在这里
+    # 应用关闭时清理资源
+    logger.info("应用关闭，清理 CF Bypass 连接...")
+    await cf_bypasser.close()
 
 
 app = FastAPI(
