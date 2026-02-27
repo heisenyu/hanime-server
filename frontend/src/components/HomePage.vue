@@ -62,12 +62,16 @@ export default defineComponent({
       popular_videos: [],
       ai_generated_videos: [],
       bubble_tea_videos: [],
+      daily_rank_videos: [],
+      monthly_rank_videos: [],
     });
 
     const filteredVideoSections = computed(() => ({
       new_arrivals: homeData.value.new_arrivals_videos,
       new_uploads: homeData.value.new_uploads_videos,
       popular: homeData.value.popular_videos,
+      daily_rank: homeData.value.daily_rank_videos,
+      monthly_rank: homeData.value.monthly_rank_videos,
       ai_generated: homeData.value.ai_generated_videos,
       bubble_tea: homeData.value.bubble_tea_videos
     }));

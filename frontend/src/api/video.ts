@@ -32,20 +32,22 @@ export const VideoApi = {
         title: '',
         cover_url: ''
       };
-      
+
       return {
         banners: emptyBanner,
         latest_videos: [],
         new_arrivals_videos: [],
         new_uploads_videos: [],
-        chinese_subtitle_videos: [],
+        popular_videos: [],
+        ai_generated_videos: [],
+        bubble_tea_videos: [],
         daily_rank_videos: [],
         monthly_rank_videos: [],
         error: '获取首页数据失败'
       };
     }
   },
-  
+
   /**
    * 获取视频详情
    */
@@ -58,7 +60,7 @@ export const VideoApi = {
       return null;
     }
   },
-  
+
   /**
    * 获取视频评论
    */
@@ -71,7 +73,7 @@ export const VideoApi = {
       return [];
     }
   },
-  
+
   /**
    * 获取评论回复
    */
@@ -84,7 +86,7 @@ export const VideoApi = {
       return [];
     }
   },
-  
+
   /**
    * 获取搜索组合选项
    */
@@ -101,7 +103,7 @@ export const VideoApi = {
       };
     }
   },
-  
+
   /**
    * 搜索视频
    * 
@@ -142,7 +144,7 @@ export const VideoApi = {
       console.error('无效的视频URL参数:', url);
       return '';
     }
-    
+
     // 确保URL不是路径而是完整的URL
     if (url.startsWith('/') || !url.includes('://')) {
       console.error('提供的URL不是完整URL:', url);

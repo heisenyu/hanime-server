@@ -7,6 +7,7 @@ from app.utils.chinese_converter import to_simplified, convert_dict, convert_lis
 
 import re
 import json
+import asyncio
 
 
 class VideoService:
@@ -56,6 +57,29 @@ class VideoService:
 
                 section_data = self._extract_section_videos(recommended_elem, matcher, display_name)
                 setattr(home_data, section_name, section_data)
+
+            # 并发获取本日排行和本月排行数据
+            try:
+                daily_result, monthly_result = await asyncio.gather(
+                    self.search_videos(query=None, genre=None, tags=None, broad=None, sort="本日排行", year=None, month=None, page=1),
+                    self.search_videos(query=None, genre=None, tags=None, broad=None, sort="本月排行", year=None, month=None, page=1),
+                )
+
+                if daily_result.detailed_videos:
+                    home_data.daily_rank_videos = [{
+                        "title": "本日排行",
+                        "search_suffix": "sort=本日排行",
+                        "videos": daily_result.detailed_videos[:10]
+                    }]
+
+                if monthly_result.detailed_videos:
+                    home_data.monthly_rank_videos = [{
+                        "title": "本月排行",
+                        "search_suffix": "sort=本月排行",
+                        "videos": monthly_result.detailed_videos[:10]
+                    }]
+            except Exception as e:
+                logger.warning(f"获取排行数据失败: {str(e)}")
 
             return home_data
         except Exception as e:
