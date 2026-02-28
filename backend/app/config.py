@@ -40,7 +40,7 @@ class Settings(BaseModel):
 
     # 文件设置
     DOWNLOAD_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "downloads")))
-    DB_PATH: Path = Path(os.getenv("DOWNLOAD_PATH", str(backend_root / "db")))
+    DB_PATH: Path = Path(os.getenv("DB_PATH", str(backend_root / "db")))
     COVER_PATH: Path = Path(os.getenv("COVER_PATH", str(backend_root / "downloads" / "covers")))
 
     # 爬虫设置

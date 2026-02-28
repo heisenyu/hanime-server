@@ -24,6 +24,7 @@ class DownloadManager:
         self.websocket_connections: Set[WebSocket] = set()
         self.pause_events: Dict[str, asyncio.Event] = {}
         self.cancel_events: Dict[str, bool] = {}
+        self.file_write_locks: Dict[str, asyncio.Lock] = {}  # 分段下载文件写入锁
         self.video_service = VideoService()
         
         # 配置参数
@@ -42,7 +43,7 @@ class DownloadManager:
         # min_segment_size: 单个下载段的最小大小
         # 用于计算文件应该分成多少段，防止段过小导致性能下降
         # 文件总大小必须大于min_segment_size*2才会使用分段下载
-        self.min_segment_size = 1024 * 1024 * 64  # 20MB，调小以适应更多文件使用分段下载
+        self.min_segment_size = 1024 * 1024 * 64  # 64MB
         
         # max_retries: 下载失败时的最大重试次数
         # 增加此值可以提高下载成功率，但可能导致长时间卡在失败的下载上
@@ -322,6 +323,7 @@ class DownloadManager:
             if video_id in self.active_downloads and not (self.active_downloads[video_id].status == DownloadStatus.PAUSED):
                 self.pause_events.pop(video_id, None)
                 self.cancel_events.pop(video_id, None)
+                self.file_write_locks.pop(video_id, None)
                 
     def calculate_optimal_segments(self, file_size: int) -> int:
         """
@@ -424,8 +426,11 @@ class DownloadManager:
                     f.seek(total_size - 1)
                     f.write(b'\0')
             
+            # 创建文件写入锁，防止并发写文件导致数据损坏
+            self.file_write_locks[video_id] = asyncio.Lock()
+            
             # 创建下载任务，使用信号量控制并发
-            semaphore = asyncio.Semaphore(num_segments)
+            semaphore = asyncio.Semaphore(self.max_segments)
             tasks = []
             for i, segment in enumerate(segments):
                 if segment.status != "completed":
@@ -560,34 +565,44 @@ class DownloadManager:
                         
                         segment.status = "downloading"
                         buffer = bytearray()
+                        written_in_segment = 0  # 本次连接已写入的字节数
                         
-                        # 使用aiofiles进行异步文件操作，提高性能
-                        async with aiofiles.open(output_path, "r+b") as f:
-                            await f.seek(actual_start)
-                            
-                            try:
-                                async for chunk in response.aiter_bytes(self.chunk_size):
-                                    # 检查是否被取消
-                                    if self.cancel_events.get(video_id):
-                                        return
-                                    
-                                    # 等待暂停事件
-                                    await self.pause_events[video_id].wait()
-                                    
-                                    buffer.extend(chunk)
-                                    if len(buffer) >= self.buffer_size:
-                                        await f.write(buffer)
-                                        segment.downloaded += len(buffer)
-                                        buffer.clear()
+                        try:
+                            async for chunk in response.aiter_bytes(self.chunk_size):
+                                # 检查是否被取消
+                                if self.cancel_events.get(video_id):
+                                    return
                                 
-                                # 写入剩余buffer
-                                if buffer:
-                                    await f.write(buffer)
-                                    segment.downloaded += len(buffer)
-                                    
-                            except asyncio.CancelledError:
-                                # 处理取消请求
-                                return
+                                # 等待暂停事件
+                                await self.pause_events[video_id].wait()
+                                
+                                buffer.extend(chunk)
+                                if len(buffer) >= self.buffer_size:
+                                    # 加锁写入，防止多段并发写同一文件导致数据损坏
+                                    write_pos = actual_start + written_in_segment
+                                    data_to_write = bytes(buffer)
+                                    async with self.file_write_locks[video_id]:
+                                        async with aiofiles.open(output_path, "r+b") as f:
+                                            await f.seek(write_pos)
+                                            await f.write(data_to_write)
+                                    written_in_segment += len(data_to_write)
+                                    segment.downloaded += len(data_to_write)
+                                    buffer.clear()
+                            
+                            # 写入剩余buffer
+                            if buffer:
+                                write_pos = actual_start + written_in_segment
+                                data_to_write = bytes(buffer)
+                                async with self.file_write_locks[video_id]:
+                                    async with aiofiles.open(output_path, "r+b") as f:
+                                        await f.seek(write_pos)
+                                        await f.write(data_to_write)
+                                written_in_segment += len(data_to_write)
+                                segment.downloaded += len(data_to_write)
+                                
+                        except asyncio.CancelledError:
+                            # 处理取消请求
+                            return
                         
                         # 段下载完成
                         segment.status = "completed"
@@ -1122,7 +1137,7 @@ class DownloadManager:
         
         # 设置代理
         if settings.USE_DOWNLOAD_PROXY and settings.DOWNLOAD_PROXY_URL:
-            client_options['proxies'] = settings.DOWNLOAD_PROXY_URL
+            client_options['proxy'] = settings.DOWNLOAD_PROXY_URL
             
         # 创建新的客户端
         client = httpx.AsyncClient(**client_options)
