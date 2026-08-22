@@ -145,14 +145,15 @@ class VideoService:
         return section_videos
 
     def _extract_detailed_video_info(self, video_ele) -> Optional[VideoPreview]:
-        """从单个 详细视频 元素中提取信息"""
+        """从单个详细视频卡片中提取信息（兼容新版相关视频卡、系列播放列表卡、旧版结构）"""
         try:
-            # 获取视频标题
+            # 获取视频标题（相关卡 div.title / 系列卡 h4.video-title 均含 'title'）
             title_elem = video_ele.s_ele("xpath:.//*[contains(@class, 'title')]")
             video_title = (title_elem.text.strip() if title_elem else None) or ""
 
-            # 获取视频链接
-            overlay_ele = video_ele.ele("xpath:.//a[contains(@class, 'video-link')]")
+            # 获取视频链接（相关卡为 a.video-link，系列卡为缩略图容器内普通 a，按 watch 链接兜底）
+            overlay_ele = video_ele.ele(
+                "xpath:.//a[contains(@class, 'video-link') or contains(@href, 'watch?v=')]")
             video_url = overlay_ele.attr("href") if overlay_ele else ""
 
             video_id = self._extract_video_id_from_url(video_url)
@@ -192,9 +193,10 @@ class VideoService:
                 if views_item:
                     views_text = views_item.text.strip()
 
-            # 获取发行商信息
+            # 获取发行商信息（相关卡 div.subtitle / 系列卡 div.meta-author）
             studio = {}
-            studio_ele = video_ele.ele("xpath:.//div[contains(@class, 'subtitle')]//a")
+            studio_ele = video_ele.ele(
+                "xpath:.//div[contains(@class, 'subtitle') or contains(@class, 'meta-author')]//a")
             if studio_ele:
                 full_text = studio_ele.text.strip()
                 studio_name = full_text.split("•")[0].strip() if "•" in full_text else full_text
@@ -307,7 +309,7 @@ class VideoService:
             return None
 
     def _extract_based_video_info(self, item) -> Optional[VideoBase]:
-        """从单个 基础视频 元素中提取信息"""
+        """从单个 基础视频 元素中提取信息（旧版竖版网格卡片）"""
         try:
             parent_link = item.s_ele("xpath:./parent::a")
             href = (parent_link.attr("href") if parent_link else None) or ""
@@ -396,28 +398,33 @@ class VideoService:
             video_title_ele = page_ele.s_ele("xpath://*[@id='shareBtn-title']")
             video_title = (video_title_ele.text.strip() if video_title_ele else None) or ""
 
+            # 网站更新（约2026-07）：用户上传的视频会在描述面板头部插入"上傳者"信息行，
+            # 导致 div[1]/div[2]/div[3] 不再固定对应 观看次数/副标题/描述，改为按特征识别
             description_wrapper_elem = page_ele.s_ele(
                 'xpath://*[@id="player-div-wrapper"]//div[contains(@class,"video-description-panel")]')
 
-            # 视频观看信息
-            video_views_ele = description_wrapper_elem.s_ele('xpath:./div[1]')
-
-            # 正则匹配观看次数和上传日期
-            views_match = re.search(r'(\d+(?:\.\d+)?(?:萬|千)?)次\s+(\d{4}-\d{2}-\d{2})', video_views_ele.text.strip())
             views_str = ""
             upload_date_str = ""
+            subtitle = ""
+            description = ""
 
-            if views_match:
-                views_str = views_match.group(1)
-                upload_date_str = views_match.group(2)
+            for panel_div in description_wrapper_elem.eles('xpath:./div'):
+                div_class = panel_div.attr('class') or ''
+                div_text = (panel_div.text or '').strip()
 
-            # 副标题
-            subtitle_ele = description_wrapper_elem.s_ele('xpath:./div[2]')
-            subtitle = subtitle_ele.text.strip() if subtitle_ele else ""
-
-            # 描述
-            description_ele = description_wrapper_elem.s_ele('xpath:./div[3]')
-            description = description_ele.text.strip() if description_ele else ""
+                if 'video-caption-text' in div_class:
+                    # 描述行（有固定 class）
+                    description = div_text
+                elif 'hidden-xs' in div_class:
+                    # 观看次数 + 上传日期行
+                    # 正则匹配观看次数和上传日期
+                    views_match = re.search(r'(\d+(?:\.\d+)?(?:萬|千)?)次\s+(\d{4}-\d{2}-\d{2})', div_text)
+                    if views_match:
+                        views_str = views_match.group(1)
+                        upload_date_str = views_match.group(2)
+                elif div_text and not subtitle and not panel_div.eles('xpath:.//a[contains(@href,"/user/")]'):
+                    # 跳过"上傳者"信息行（内含用户主页链接），第一个纯文本行即副标题
+                    subtitle = div_text
 
             # 使用辅助方法提取标签
             tags = self._extract_tags(page_ele)
@@ -757,12 +764,11 @@ class VideoService:
 
     # 辅助方法，提取相关视频信息
     def _extract_related_videos_based(self, page_ele) -> List[VideoBase]:
-        """提取相关视频信息"""
+        """提取相关视频信息（basic：旧版竖版网格卡片）"""
         related_videos = []
 
-        # with open('related.html', 'w', encoding='utf-8') as f:
-        #     f.write(page_ele.html)
-
+        # 网站新旧模板混用：旧版页面的竖版卡片仍是 home-rows-videos-div；
+        # 新版页面无此结构，由 detailed 提取器负责（避免同一批卡片在 basic/detailed 重复渲染）
         related_items = page_ele.eles(
             'xpath://*[@id="related-tabcontent"]//*[contains(@class, "home-rows-videos-div")]')
 
@@ -771,35 +777,59 @@ class VideoService:
             if video_info:
                 related_videos.append(video_info)
 
-        return related_videos
+        return self._dedup_by_id(related_videos)
 
     def _extract_related_videos_detailed(self, page_ele) -> List[VideoPreview]:
-        """提取相关视频信息"""
+        """提取相关视频信息（detailed：横版卡片，新旧结构兼容）"""
         related_videos = []
+        # 网站新旧模板混用：新版页面为 video-item-container，旧版页面为 related-doujin-videos；
+        # 页面可能含桌面/移动双份 DOM，结果按 video_id 去重
         related_items = page_ele.eles(
-            'xpath://*[@id="related-tabcontent"]//div[contains(@class, "related-doujin-videos")]')
+            'xpath://*[@id="related-tabcontent"]//div[contains(@class, "video-item-container") or contains(@class, "related-doujin-videos")]')
 
         for video_ele in related_items:
             video_info = self._extract_detailed_video_info(video_ele)
             if video_info:
                 related_videos.append(video_info)
 
-        return related_videos
+        return self._dedup_by_id(related_videos)
 
     # 辅助方法，提取系列视频信息
     def _extract_series_videos(self, page_ele) -> List[VideoPreview]:
         """提取系列视频信息"""
+        # 网站改版过渡期：新结构 playlist-video-card 与旧结构 multiple-link-wrapper 并存于不同视频页；
+        # 页面含桌面/移动两份 playlist-scroll，结果按 video_id 去重
         series_videos = []
+
         series_items = page_ele.eles(
-            'xpath://*[@id="player-div-wrapper"]//*[@id="playlist-scroll"]//*[contains(@class, "multiple-link-wrapper")]')
+            'xpath://*[@id="playlist-scroll"]//div[contains(@class, "playlist-video-card")]')
 
         for video_ele in series_items:
-            video_info = self._extract_detailed_video_info_old(video_ele)
-
+            video_info = self._extract_detailed_video_info(video_ele)
             if video_info:
                 series_videos.append(video_info)
 
-        return series_videos
+        # 旧版页面结构回退
+        if not series_videos:
+            old_items = page_ele.eles(
+                'xpath://*[@id="player-div-wrapper"]//*[@id="playlist-scroll"]//*[contains(@class, "multiple-link-wrapper")]')
+            for video_ele in old_items:
+                video_info = self._extract_detailed_video_info_old(video_ele)
+                if video_info:
+                    series_videos.append(video_info)
+
+        return self._dedup_by_id(series_videos)
+
+    @staticmethod
+    def _dedup_by_id(videos: list) -> list:
+        """按 video_id 去重（页面可能包含桌面/移动双份 DOM）"""
+        seen = set()
+        result = []
+        for video in videos:
+            if video and video.video_id not in seen:
+                seen.add(video.video_id)
+                result.append(video)
+        return result
 
     async def get_search_combination(self) -> SearchCombination:
         """获取搜索组合"""
@@ -956,11 +986,19 @@ class VideoService:
                     has_next = True
 
             detailed_video_list = []
-            # 获取所有含有title属性的div
-            video_elements = page_ele.eles('xpath://*[@id="home-rows-wrapper"]//div[@title]')
+            # 网站新旧模板混用：新版搜索卡片为 video-item-container（无桌面/移动双份，全量遍历）；
+            # 旧版为 div[@title]（桌面/移动双份 DOM，需"每2取1"）
+            video_elements = page_ele.eles(
+                'xpath://*[@id="home-rows-wrapper"]//div[contains(@class, "video-item-container")]')
 
             if video_elements:
-                # 每隔一个取一个（取第1、3、5...个）
+                for video_ele in video_elements:
+                    video_info = self._extract_detailed_video_info(video_ele)
+                    if video_info:
+                        detailed_video_list.append(video_info)
+            else:
+                # 旧版结构回退
+                video_elements = page_ele.eles('xpath://*[@id="home-rows-wrapper"]//div[@title]')
                 for i in range(0, len(video_elements), 2):
                     video_ele = video_elements[i]
                     video_info = self._extract_detailed_video_info(video_ele)
@@ -968,22 +1006,21 @@ class VideoService:
                         detailed_video_list.append(video_info)
 
             basic_video_list = []
-            # 提取基本视频信息（可能是另一种布局）
+            # 旧版竖版网格卡片（新版页面无此结构，由 detailed 负责）
             video_elements = page_ele.eles(
                 'xpath://*[@id="home-rows-wrapper"]//*[contains(@class, "home-rows-videos-div")]')
 
-            if video_elements:
-                for video_ele in video_elements:
-                    video_info = self._extract_based_video_info(video_ele)
-                    if video_info:
-                        basic_video_list.append(video_info)
+            for video_ele in video_elements:
+                video_info = self._extract_based_video_info(video_ele)
+                if video_info:
+                    basic_video_list.append(video_info)
 
-            # 创建搜索结果
+            # 创建搜索结果（列表按 video_id 去重，防页面双份 DOM）
             return SearchResults(
                 total_pages=total_pages,
                 page=page,
-                basic_videos=basic_video_list,
-                detailed_videos=detailed_video_list,
+                basic_videos=self._dedup_by_id(basic_video_list),
+                detailed_videos=self._dedup_by_id(detailed_video_list),
                 has_next=has_next
             )
 
